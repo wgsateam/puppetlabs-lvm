@@ -4,7 +4,9 @@ Facter.add('lvm_support') do
   confine :kernel => :linux
 
   setcode do
-    vgdisplay = Facter::Util::Resolution.which('vgs')
+    if Facter.value(:kernel) == 'Linux'
+      vgdisplay = Facter::Util::Resolution.which('vgs')
+    end
     vgdisplay.nil? ? nil : true
   end
 end
@@ -15,7 +17,9 @@ vg_list = []
 Facter.add('lvm_vgs') do
   confine :lvm_support => true
 
-  vgs = Facter::Core::Execution.execute('vgs -o name --noheadings 2>/dev/null', timeout: 30)
+  if Facter.value(:lvm_support)
+    vgs = Facter::Core::Execution.execute('vgs -o name --noheadings 2>/dev/null', {"timeout" => 30})
+  end
   if vgs.nil?
     setcode { 0 }
   else
@@ -30,7 +34,9 @@ vg_list.each_with_index do |vg, i|
   Facter.add("lvm_vg_#{i}") { setcode { vg } }
   Facter.add("lvm_vg_#{vg}_pvs") do
     setcode do
-      pvs = Facter::Core::Execution.execute("vgs -o pv_name #{vg} 2>/dev/null", timeout: 30)
+      if Facter.value(:lvm_support)
+        pvs = Facter::Core::Execution.execute("vgs -o pv_name #{vg} 2>/dev/null", {"timeout" => 30})
+      end
       res = nil
       unless pvs.nil?
         res = pvs.split("\n").select{|l| l =~ /^\s+\// }.collect(&:strip).sort.join(',')
@@ -46,7 +52,9 @@ pv_list = []
 Facter.add('lvm_pvs') do
   confine :lvm_support => true
 
-  pvs = Facter::Core::Execution.execute('pvs -o name --noheadings 2>/dev/null', timeout: 30)
+  if Facter.value(:lvm_support)
+    pvs = Facter::Core::Execution.execute('pvs -o name --noheadings 2>/dev/null', {"timeout" => 30})
+  end
   if pvs.nil?
     setcode { 0 }
   else
