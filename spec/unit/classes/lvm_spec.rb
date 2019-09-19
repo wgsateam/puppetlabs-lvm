@@ -21,7 +21,7 @@ describe 'lvm', :type => :class do
               'backup' => {
                 'size'              => '5G',
                 'mountpath'         => '/var/backups',
-                'mountpath_require' => true
+                'mountpath_require' => false
               }
             }
           }
@@ -62,7 +62,7 @@ describe 'lvm', :type => :class do
                 'size'              => '5G',
                 'mounted'           => false,
                 'mountpath'         => '/mnt/not_mounted',
-                'mountpath_require' => true
+                'mountpath_require' => false
               }
             }
           }
@@ -80,7 +80,7 @@ describe 'lvm', :type => :class do
       {
         :volume_groups => {
           'myvg' => {
-            'physical_volumes' => [ '/dev/sda2', '/dev/sda3', ],
+            'physical_volumes' => [ '/dev/sda2', '/dev/sda3' ],
             'logical_volumes'  => {
               'swap'  => {
                 'size'    => '20G',
@@ -111,10 +111,5 @@ describe 'lvm', :type => :class do
       :pass   => 0,
       :dump   => 0
     }) }
-    it { should contain_exec("swapon for '/dev/myvg/swap'") }
-    it { should_not contain_exec("ensure mountpoint 'swap_/dev/myvg/swap' exists") }
-
-    it { should contain_exec("swapoff for '/dev/myvg/swap2'") }
-    it { should_not contain_exec("ensure mountpoint 'swap_/dev/myvg/swap2' exists") }
   end
 end
