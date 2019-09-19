@@ -4,7 +4,9 @@ Facter.add('lvm_support') do
   confine :kernel => :linux
 
   setcode do
-    vgdisplay = Facter::Util::Resolution.which('vgs')
+    if Facter.value(:kernel) == 'Linux'
+      vgdisplay = Facter::Util::Resolution.which('vgs')
+    end
     vgdisplay.nil? ? nil : true
   end
 end
@@ -33,7 +35,9 @@ vg_list.each_with_index do |vg, i|
   Facter.add("lvm_vg_#{i}") { setcode { vg } }
   Facter.add("lvm_vg_#{vg}_pvs") do
     setcode do
-      pvs = Facter::Core::Execution.execute("vgs -o pv_name #{vg} 2>/dev/null", timeout: 30)
+      if Facter.value(:lvm_support)
+        pvs = Facter::Core::Execution.execute("vgs -o pv_name #{vg} 2>/dev/null", timeout: 30)
+      end
       res = nil
       unless pvs.nil?
         res = pvs.split("\n").select{|l| l =~ /^\s+\// }.collect(&:strip).sort.join(',')
