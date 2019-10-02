@@ -66,7 +66,7 @@ Puppet::Type.type(:volume_group).provide :lvm do
                     device = File.expand_path(File.readlink(s), File.dirname(s))
                     new_volume_real.push device
                 else
-                    real_should.push s
+                    new_volume_real.push s
                 end
             end
             new_volumes = new_volume_real
